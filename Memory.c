@@ -3,7 +3,7 @@
 
 memory_t* mymemory_init(size_t size){
     
-    // Ponteiro memory aponta para a estrutura mymemory_t, e em seguida reserva uma quantidade X de bytes na memória heap (com malloc). O endereço dessa área alocada é armazenado no ponteiro memory.
+    // Ponteiro memory aponta para a estrutura memory_t, e em seguida reserva uma quantidade X de bytes na memória heap (com malloc). O endereço dessa área alocada é armazenado no ponteiro memory.
     memory_t *memory = (memory_t*) malloc(sizeof(memory_t));
     
     //Se a alocação falhar retornamos nulo.
@@ -29,7 +29,7 @@ memory_t* mymemory_init(size_t size){
     return memory;
 }
 
-void* mymemory_alloc(mymemory_t *memory, size_t size) {
+void* mymemory_alloc(memory_t *memory, size_t size) {
     
     //Verifica se o gerenciador foi corretamente inicializado e se o tamanho da alocação é válido. Caso contrário, retorna NULL.
     if (memory == NULL || size == 0) return NULL;
@@ -96,7 +96,7 @@ void mymemory_stats(memory_t *memory)
 
 //liberar tudo ao final
 //Da free no pool e em todas as structs allocation_t
-void mymemory_cleanup(mymemory_t *memory)
+void mymemory_cleanup(memory_t *memory)
 
 
 
