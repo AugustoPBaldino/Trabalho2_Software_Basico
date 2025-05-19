@@ -84,7 +84,36 @@ void* mymemory_alloc(memory_t *memory, size_t size) {
 //Não retorna nada e recebe como parametro um ponteiro para a memória do sistema e um ponteiro para o bloco que será liberado
 //Simula o free()
 //Percorre a lista de alocações, encontra o bloco que começa com ptr e o remove da lista
-void mymemory_free(memory_t *memory, void *ptr)
+void mymemory_free(memory_t *memory, void *ptr) {
+    if (memory == NULL || ptr == NULL) return;
+
+    allocation_t *current = memory->head;
+    allocation_t *prev = NULL;
+
+    // percorre a lista procurando o bloco com start == ptr
+    while (current != NULL) {
+        if (current->start == ptr) {
+            // achou o bloco, agora remove da lista
+            if (prev == NULL) {
+                // o bloco é o primeiro da lista
+                memory->head = current->next;
+            } else {
+                // o bloco está no meio ou fim
+                prev->next = current->next;
+            }
+
+            // libera a struct allocation_t (mas não mexe no pool!)
+            free(current);
+            return;
+        }
+
+        // avança na lista
+        prev = current;
+        current = current->next;
+    }
+
+    // se chegou aqui, não achou o bloco — não faz nada
+}
 
 //Mostra os blocos alocados
 //Mostra todos os blocos em ordem: posição start e tamanho
