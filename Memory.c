@@ -117,17 +117,94 @@ void mymemory_free(memory_t *memory, void *ptr) {
 
 //Mostra os blocos alocados
 //Mostra todos os blocos em ordem: posição start e tamanho
-void mymemory_display(memory_t *memory){}
+void mymemory_display(memory_t *memory) {
+    if (memory == NULL) {
+        printf("Memória não inicializada.\n");
+        return;
+    }
+
+    allocation_t *current = memory->head;
+
+    if (current == NULL) {
+        printf("Nenhum bloco alocado.\n");
+        return;
+    }
+
+    printf("Blocos alocados:\n");
+
+    while (current != NULL) {
+        printf(" - Início: %p | Tamanho: %zu bytes\n", current->start, current->size);
+        current = current->next;
+    }
+}
 
 //Mostra estatísticas da memória 
 //Total alocado, total livre, maior espaço contíguo livre, fragmentação
-void mymemory_stats(memory_t *memory)
+#include <stdio.h>
+
+void mymemory_stats(memory_t *memory) {
+    if (memory == NULL) {
+        printf("Memória não inicializada.\n");
+        return;
+    }
+
+    size_t total_allocated = 0;
+    size_t total_free = 0;
+    size_t largest_free_block = 0;
+    int num_allocations = 0;
+    int num_free_fragments = 0;
+
+    char *pool_start = (char *) memory->pool;
+    char *pool_end = pool_start + memory->total_size;
+
+    allocation_t *current = memory->head;
+    char *ptr = pool_start;
+
+    while (current != NULL) {
+        size_t gap = (char *)current->start - ptr;
+
+        if (gap > 0) {
+            total_free += gap;
+            num_free_fragments++;
+            if (gap > largest_free_block)
+                largest_free_block = gap;
+        }
+
+        total_allocated += current->size;
+        ptr = (char *)current->start + current->size;
+        current = current->next;
+        num_allocations++;
+    }
+
+    // espaço livre depois do último bloco até o fim do pool
+    if (ptr < pool_end) {
+        size_t final_gap = pool_end - ptr;
+        total_free += final_gap;
+        num_free_fragments++;
+        if (final_gap > largest_free_block)
+            largest_free_block = final_gap;
+    }
+
+    printf("=== Estatísticas da Memória ===\n");
+    printf("Total de alocações: %d\n", num_allocations);
+    printf("Total alocado: %zu bytes\n", total_allocated);
+    printf("Total livre: %zu bytes\n", total_free);
+    printf("Maior bloco livre contíguo: %zu bytes\n", largest_free_block);
+    printf("Número de fragmentos livres: %d\n", num_free_fragments);
+}
 
 //liberar tudo ao final
 //Da free no pool e em todas as structs allocation_t
-void mymemory_cleanup(memory_t *memory)
+void mymemory_cleanup(memory_t *memory) {
+    if (memory == NULL) return;
 
+    allocation_t *current = memory->head;
+    while (current != NULL) {
+        allocation_t *next = current->next;
+        free(current);
+        current = next;
+    }
 
-
-
-
+    free(memory->pool);
+    free(memory);
+}
